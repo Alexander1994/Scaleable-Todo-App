@@ -1,6 +1,9 @@
 
-from server import server, server_engine
+from flask import Flask
+from views.user import user
+
+server = Flask(__name__)
 
 @server.route('/login', methods=['POST'])
-def root():
-    return server_engine.login()
+def login():
+    return user.login()
