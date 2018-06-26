@@ -1,2 +1,4 @@
 flask==1.02
 psycopg2==2.6.2
+redis==2.10.6
+bcrypt==3.1.4
