@@ -27,4 +27,7 @@ def shutdown_hook():
     print("db connections shutdown")
 
 
+def test():
+    print("hello modeuls top level")
+
 atexit.register(shutdown_hook)

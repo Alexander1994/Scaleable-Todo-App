@@ -1,6 +1,6 @@
 
 from flask import Flask
-from views.user import user
+from app.views.user import user
 
 server = Flask(__name__)
 
