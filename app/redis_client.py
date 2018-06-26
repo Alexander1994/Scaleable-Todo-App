@@ -12,5 +12,6 @@ session_storage_design = {
         'timeout': '12',
         'information': 'bluh bluh'
     },
+    ...
 }
 """

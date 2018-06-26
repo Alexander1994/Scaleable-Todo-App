@@ -5,11 +5,14 @@ from flask import jsonify, request
 from app.db import login as login_success
 from bcrypt import gensalt
 
-from app.db import test
-
-test()
 
 class User:
+    def __userIsLoggedIn(self, username):
+        return bool(redis_client.exists(username))
+
+    def __logoutUser(self, username):
+        redis_client.delete(username)
+
     def __verifyUser(self, username, sessionId):
         storedSessionId = redis_client.hmget(username, "sessionId")[0].decode('utf-8')
         return storedSessionId == sessionId
@@ -27,7 +30,7 @@ class User:
             username = login_req['username']
             password = login_req['password']
             
-            if not redis_client.exists(username): # if user already logged in return login attempt false
+            if not User.__userIsLoggedIn(self, username):
                 success = login_success(username, password)
                 if success:
                     sessionId = User.__genSessionId(self, username)
@@ -42,7 +45,7 @@ class User:
                     error = "username or password is incorrect"
                 return jsonify({'success':success, 'sessionId':sessionId, 'error':error})
             else:
-                 error = "User currently logged in"
+                 error = "User currently logged in" # if user already logged in return login attempt false
         else:
             error = "username or password not included in request"
         return jsonify({'success':False, 'sessionId':sessionId, 'error':error})
@@ -54,7 +57,7 @@ class User:
             sessionId = logout_req["sessionId"]
             username = logout_req['username']
             if User.__verifyUser(self, username, sessionId):
-                redis_client.delete(username)
+                User.__logoutUser(self, username)   
                 return jsonify({'success': 'true', 'error':error})
             else:
                 error = "invalid logout" # sessionId doesn't match server id??? Bug or hacking maybe?
