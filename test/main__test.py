@@ -23,10 +23,18 @@ login_dict = {
 }
 login_resp = send_json('login', login_dict, 'POST')
 print(login_resp)
+sessionId = login_resp['sessionId']
+
+list_json = {
+    "username":"admin@admin.co",
+    "sessionId": sessionId
+}
+list_resp = send_json('todo/list_all', list_json, 'POST')
+print(list_resp)
 
 logout_dict = {
     "username":"admin@admin.co",
-    'sessionId': login_resp['sessionId']
+    'sessionId': sessionId
 }
 print(logout_dict)
 logout_resp = send_json('logout', logout_dict, 'POST')

@@ -1,5 +1,5 @@
 
-import hashlib
+import hashlib, json
 from app.redis_client import redis_client
 from flask import jsonify, request
 from app.db import login as login_success
@@ -13,32 +13,42 @@ class User:
     def __logoutUser(self, username):
         redis_client.delete(username)
 
-    def __verifyUser(self, username, sessionId):
-        storedSessionId = redis_client.hmget(username, "sessionId")[0].decode('utf-8')
-        return storedSessionId == sessionId
-
     def __genSessionId(self, username):
         salt = gensalt().decode('utf-8')
         return hashlib.sha256(bytearray(salt + username, 'utf8')).hexdigest()
 
+    def verifyUser(self, username, sessionId):
+        sessionIdList = redis_client.hmget(username, "sessionId")
+        if sessionIdList[0] == None:
+            return False
+        storedSessionId = sessionIdList[0].decode('utf-8')
+        return storedSessionId == sessionId
+
+    def validRequest(self, request):
+        json_req = request.get_json()
+        if "sessionId" in json_req and "username" in json_req:
+            if self.verifyUser(json_req['username'], json_req["sessionId"]):
+                return json_req
+        return None
 
     def login(self):
         error = None
         sessionId = None
         login_req = request.get_json()
-        if "username" in login_req and "password" in login_req:
+        if "password" in login_req and "username" in login_req:
             username = login_req['username']
             password = login_req['password']
-            
-            if not User.__userIsLoggedIn(self, username):
+            if not self.__userIsLoggedIn(username):
                 success = login_success(username, password)
                 if success:
-                    sessionId = User.__genSessionId(self, username)
+                    sessionId = self.__genSessionId(username)
                     default_session = {
-                        'create a todo account':'complete',
-                        'create todo':'incomplete',
                         'sessionId': sessionId,
-                        'timeout': "TODO"
+                        'timeout': "TODO",
+                        'todo': json.dumps({
+                            "create a todo account":"complete",
+                            "create todo":"incomplete"
+                        })
                     }
                     redis_client.hmset(username, default_session)
                 else:
@@ -52,15 +62,11 @@ class User:
 
     def logout(self):
         error = None
-        logout_req = request.get_json()
-        if "sessionId" in logout_req and "username" in logout_req:
-            sessionId = logout_req["sessionId"]
-            username = logout_req['username']
-            if User.__verifyUser(self, username, sessionId):
-                User.__logoutUser(self, username)   
-                return jsonify({'success': 'true', 'error':error})
-            else:
-                error = "invalid logout" # sessionId doesn't match server id??? Bug or hacking maybe?
+        req_json = self.validRequest(request)
+        if req_json != None:
+            username = req_json['username']
+            self.__logoutUser(username)   
+            return jsonify({'success': 'true', 'error':error})
         else:
             error = "sessionId or username not included in logout"
         return jsonify({'success':'false', 'error':error})
