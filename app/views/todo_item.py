@@ -14,19 +14,36 @@ class Todo_Item:
         if req_json != None and 'add' in req_json:
             username = req_json['username']
             update_dict = req_json['add']
-            if update_dict:
+            if update_dict and isinstance(update_dict, dict):
                 todo_key = get_todo_key(username)
                 redis_client.hmset(todo_key, update_dict)
                 success = True
             else:
-                error = "no update included"
+                error = "no addition included"
             return jsonify({'success':success, 'error':error})
         else:
             error = "invalid login"
         return jsonify({'success':success, 'error':error})
 
     def update(self):
-        pass
+        error = None
+        success = False
+        req_json = user.validRequest(request)
+        if req_json != None and 'update' in req_json:
+            username = req_json['username']
+            update_dict = req_json['update']
+            if update_dict:
+                todo_key = get_todo_key(username)
+                for todo_task in update_dict:
+                    if redis_client.hexists(todo_key, todo_task):
+                        redis_client.hset(todo_key, todo_task, update_dict[todo_task])
+                        success = True
+            else:
+                error = "no update included"
+            return jsonify({'success':success, 'error':error})
+        else:
+            error = "invalid login"
+        return jsonify({'success':success, 'error':error})
 
     def delete(self):
         pass

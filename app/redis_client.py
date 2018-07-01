@@ -7,12 +7,9 @@ def get_todo_key(username):
     return "%s:todo".format(username)
 
 def get_todo_dict(username):
-    todo_key = "%s:todo".format(username)
+    todo_key = get_todo_key(username)
     todo_byte_data = redis_client.hgetall(todo_key)
     todo_dict = {k.decode('utf-8'): v.decode('utf-8') for k,v in todo_byte_data.items()}
-    print(type(todo_dict))
-
-    print(todo_dict)
     return todo_dict
 
 

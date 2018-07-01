@@ -29,12 +29,21 @@ create_json = {
     "username":"admin@admin.co",
     "sessionId": sessionId,
     "add": {
-        "key":"value"
+        "create update feature":"incomplete"
     }
 }
 create_resp = send_json('todo/add', create_json, 'POST')
 print(create_resp)
 
+update_json = {
+    "username":"admin@admin.co",
+    "sessionId": sessionId,
+    "update": {
+        "create update feature":"complete"
+    }
+}
+update_resp = send_json('todo/update', update_json, 'POST')
+print(update_resp)
 
 list_json = {
     "username":"admin@admin.co",

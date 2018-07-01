@@ -20,3 +20,7 @@ def list_all_todo():
 @server.route('/todo/add', methods=['POST'])
 def add_todo():
     return todo_item.add()
+
+@server.route('/todo/update', methods=['POST'])
+def update_todo():
+    return todo_item.update()
