@@ -25,6 +25,17 @@ login_resp = send_json('login', login_dict, 'POST')
 print(login_resp)
 sessionId = login_resp['sessionId']
 
+create_json = {
+    "username":"admin@admin.co",
+    "sessionId": sessionId,
+    "add": {
+        "key":"value"
+    }
+}
+create_resp = send_json('todo/add', create_json, 'POST')
+print(create_resp)
+
+
 list_json = {
     "username":"admin@admin.co",
     "sessionId": sessionId
@@ -36,6 +47,5 @@ logout_dict = {
     "username":"admin@admin.co",
     'sessionId': sessionId
 }
-print(logout_dict)
 logout_resp = send_json('logout', logout_dict, 'POST')
 print(logout_resp)

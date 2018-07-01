@@ -14,5 +14,9 @@ def logout():
     return user.logout()
 
 @server.route('/todo/list_all', methods=['POST'])
-def create_todo():
+def list_all_todo():
     return todo_item.list_all()
+
+@server.route('/todo/add', methods=['POST'])
+def add_todo():
+    return todo_item.add()

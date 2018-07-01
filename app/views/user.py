@@ -3,6 +3,7 @@ import hashlib, json
 from app.redis_client import redis_client
 from flask import jsonify, request
 from app.db import login as login_success
+from app.redis_client import get_todo_key
 from bcrypt import gensalt
 
 
@@ -44,13 +45,15 @@ class User:
                     sessionId = self.__genSessionId(username)
                     default_session = {
                         'sessionId': sessionId,
-                        'timeout': "TODO",
-                        'todo': json.dumps({
-                            "create a todo account":"complete",
-                            "create todo":"incomplete"
-                        })
+                        'timeout': "TODO"
+                    }
+                    todo_json = {
+                        "create a todo account":"complete",
+                        "create todo":"incomplete"
                     }
                     redis_client.hmset(username, default_session)
+                    todo_key = get_todo_key(username)
+                    redis_client.hmset(todo_key, todo_json)
                 else:
                     error = "username or password is incorrect"
                 return jsonify({'success':success, 'sessionId':sessionId, 'error':error})
