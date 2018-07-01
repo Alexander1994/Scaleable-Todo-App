@@ -20,7 +20,6 @@ class Todo_Item:
                 success = True
             else:
                 error = "no addition included"
-            return jsonify({'success':success, 'error':error})
         else:
             error = "invalid login"
         return jsonify({'success':success, 'error':error})
@@ -40,13 +39,30 @@ class Todo_Item:
                         success = True
             else:
                 error = "no update included"
-            return jsonify({'success':success, 'error':error})
         else:
             error = "invalid login"
         return jsonify({'success':success, 'error':error})
 
     def delete(self):
-        pass
+        error = None
+        success = False
+        deleted = []
+        req_json = user.validRequest(request)
+        if req_json != None and 'delete' in req_json:
+            username = req_json['username']
+            delete_list = req_json['delete']
+            if len(delete_list) !=0:
+                todo_key = get_todo_key(username)
+                for todo_task in delete_list:
+                    if redis_client.hdel(todo_key, todo_task):
+                        deleted.append(todo_task)
+                        if not success:
+                            success = True
+            else:
+                error = "no deletion included"
+        else:
+            error = "invalid login"
+        return jsonify({'success':success, 'error':error, 'deleted':deleted})
 
 
     def list_all(self):
@@ -56,7 +72,6 @@ class Todo_Item:
         req_json = user.validRequest(request)
         if req_json != None:
             todo_json = get_todo_dict(req_json['username']) 
-            return jsonify({'todo':todo_json, 'error':error})
         else:
             error = "invalid login"
         return jsonify({'todo':todo_json, 'error': error})

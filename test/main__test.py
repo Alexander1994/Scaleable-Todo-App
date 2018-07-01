@@ -1,6 +1,6 @@
 
 """
-Make shift test fail just to ensure functionality continues to work while being updated
+temporary test file just to ensure functionality continues to work while being updated
 """
 
 import requests
@@ -44,6 +44,16 @@ update_json = {
 }
 update_resp = send_json('todo/update', update_json, 'POST')
 print(update_resp)
+
+delete_json = {
+    "username": "admin@admin.co",
+    "sessionId": sessionId,
+    "delete": [
+        "create todo"
+    ]
+}
+delete_resp = send_json('todo/delete', delete_json, 'POST')
+print(delete_resp)
 
 list_json = {
     "username":"admin@admin.co",
